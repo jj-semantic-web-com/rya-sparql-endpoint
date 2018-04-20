@@ -6,8 +6,8 @@ import biz.poolparty.rya.templating.MAVWriterFactory;
 import biz.poolparty.rya.templating.TupleQueryMAVWriterFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,11 +15,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.openrdf.model.vocabulary.SKOS;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
@@ -27,10 +26,8 @@ import org.openrdf.query.parser.ParsedOperation;
 import org.openrdf.query.parser.ParsedTupleQuery;
 import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.QueryParserUtil;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriterFactory;
 import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
 import org.openrdf.repository.RepositoryConnection;
@@ -41,16 +38,12 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriterFactory;
 import org.openrdf.rio.RDFWriterRegistry;
-import org.openrdf.rio.turtle.TurtleWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
@@ -76,25 +69,37 @@ public class SPARQLController {
     @Resource(name="repository")
     SailRepository repository = null;
     
-    @Resource(name="repositorySD")
-    SailRepository repositorySD = null;
+    @Resource(name="sdBaseURL")
+    URL sdBaseURL;
     
+    /**
+     * 
+     * @throws MalformedURLException
+     * @throws IOException 
+     */
     public SPARQLController() throws MalformedURLException, IOException {
         RDFWriterRegistry.getInstance().add(new GraphQueryMAVWriterFactory());  
         TupleQueryResultWriterRegistry.getInstance().add(new TupleQueryMAVWriterFactory());        
         BooleanQueryResultWriterRegistry.getInstance().add(new BooleanQueryMAVWriterFactory());
     }
     
+    /**
+     * 
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws RDFParseException 
+     */
     @PostConstruct
     public void postConstruct() throws RepositoryException, IOException, RDFParseException{
         RepositoryConnection repCon = null;
         try {
-            repCon = repositorySD.getConnection();
+            repCon = repository.getConnection();
             repCon.begin();
             repCon.add(
                 SPARQLController.class.getResourceAsStream("/sparql-service-description.ttl"), 
-                "http://localhost:8080/rya/",
-                RDFFormat.TURTLE                
+                sdBaseURL.toString(),
+                RDFFormat.TURTLE,
+                new URIImpl("urn:sd")
             );
             repCon.commit();
         } finally {
@@ -104,7 +109,20 @@ public class SPARQLController {
         }
     }
 
-    @RequestMapping(value="/sparql", method={RequestMethod.GET, RequestMethod.POST})
+    /**
+     * 
+     * @param request
+     * @param response
+     * @param query
+     * @param mimetype 
+     */
+    @RequestMapping(
+            value = "/sparql", 
+            method = {RequestMethod.GET, RequestMethod.POST},
+            params = {
+                CONSTANTS.PARAM_QUERYSTRING
+            } 
+    )
     public void endpoint(
         final HttpServletRequest request,
         final HttpServletResponse response,
@@ -201,6 +219,15 @@ public class SPARQLController {
 
     }
     
+    /**
+     * 
+     * @param rdfWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleGraphQuery(
             RDFWriterFactory rdfWriterFactory, 
             ParsedGraphQuery parsedQuery,
@@ -224,6 +251,15 @@ public class SPARQLController {
         }
     }
     
+    /**
+     * 
+     * @param tupleQueryWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleTupleQuery(
             TupleQueryResultWriterFactory tupleQueryWriterFactory, 
             ParsedTupleQuery parsedQuery,
@@ -247,6 +283,15 @@ public class SPARQLController {
         }
     }
     
+    /**
+     * 
+     * @param booleanQueryWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleBooleanQuery(
             BooleanQueryResultWriterFactory booleanQueryWriterFactory, 
             ParsedBooleanQuery parsedQuery,
@@ -272,6 +317,15 @@ public class SPARQLController {
         }
     }
     
+    /**
+     * 
+     * @param rdfWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleGraphQueryMAV(
             GraphQueryMAVWriterFactory rdfWriterFactory, 
             ParsedGraphQuery parsedQuery,
@@ -300,6 +354,15 @@ public class SPARQLController {
             );                           
     }
     
+    /**
+     * 
+     * @param tupleQueryWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleTupleQueryMAV(
             TupleQueryMAVWriterFactory tupleQueryWriterFactory, 
             ParsedTupleQuery parsedQuery,
@@ -328,6 +391,15 @@ public class SPARQLController {
             );                           
     }
     
+    /**
+     * 
+     * @param booleanQueryWriterFactory
+     * @param parsedQuery
+     * @param repCon
+     * @param request
+     * @param response
+     * @throws Exception 
+     */
     private void handleBooleanQueryMAV(
             BooleanQueryMAVWriterFactory booleanQueryWriterFactory, 
             ParsedBooleanQuery parsedQuery,
@@ -356,11 +428,34 @@ public class SPARQLController {
             );
     }    
     
+    /**
+     * 
+     * @param request
+     * @return
+     * @throws Exception 
+     */
     private View getView(HttpServletRequest request) throws Exception{
         return viewResolver.resolveViewName(CONSTANTS.DEFAULT_SPARQL_ENDPOINT_TEMPLATE, request.getLocale());
     }
     
-    private void sendRDFHTTPMessage(HttpServletRequest request, HttpServletResponse response, RepositoryConnection repCon, String query, String accept, String messageQuery) throws Exception {
+    /**
+     * Sends messages to the client as RDF Triples.
+     * @param request
+     * @param response
+     * @param repCon
+     * @param query
+     * @param accept
+     * @param messageQuery
+     * @throws Exception 
+     */
+    private void sendRDFHTTPMessage(
+            HttpServletRequest request, 
+            HttpServletResponse response, 
+            RepositoryConnection repCon, 
+            String query, 
+            String accept, 
+            String messageQuery
+    ) throws Exception {
         RDFWriterFactory rdfWriterFactory = this.getRDFWriterFactory(accept);        
         View view = this.getView(request);
         Map<String,Object> model = new HashMap<>();
@@ -375,167 +470,28 @@ public class SPARQLController {
                             );
     }
     
-    @RequestMapping(value="/xsparql", method=RequestMethod.GET)
+    /**
+     * Default SPARQL Endpoint without any parameters, displaying the endpoint's capabilities
+     * using SPARQL Service Description Vocabulary 
+     * (see: https://www.w3.org/TR/sparql11-service-description/)
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws RepositoryException
+     * @throws QueryEvaluationException
+     * @throws RDFHandlerException
+     * @throws MalformedQueryException
+     * @throws UpdateExecutionException
+     * @throws Exception 
+     */
+    @RequestMapping(value="/sparql", method=RequestMethod.GET)
     public void index(            
         final HttpServletRequest request,
         final HttpServletResponse response
     ) throws IOException, RepositoryException, QueryEvaluationException, RDFHandlerException, MalformedQueryException, UpdateExecutionException, Exception {
-        this.sparql("CONSTRUCT WHERE { ?s ?p ?o }", request.getParameter("mimetype"), true, request, response);
+        this.endpoint(request, response, "CONSTRUCT { ?s ?p ?o } WHERE { { SELECT * WHERE { GRAPH <urn:sd> { ?s ?p ?o } } } } ", request.getParameter("mimetype"));
     }
     
-    @RequestMapping(
-            value = "/xsparql", 
-            method = {RequestMethod.GET, RequestMethod.POST},
-            params = {
-                CONSTANTS.PARAM_QUERYSTRING
-            } 
-    )
-    public void sparql(            
-            @RequestParam(value = "query") final String query, 
-            @RequestParam(value = "mimetype", required = false) String mimetype,
-            @RequestParam(value = "internal", required = false, defaultValue = "false") boolean internal,
-            final HttpServletRequest request, 
-            final HttpServletResponse response
-    ) throws MalformedQueryException, RepositoryException, QueryEvaluationException, TupleQueryResultHandlerException, IOException, RDFHandlerException, UpdateExecutionException, Exception{
-        ParsedOperation parsedQuery;
-        RepositoryConnection repCon = null;
-        
-        String accept = (mimetype!=null && !mimetype.isEmpty()) ? mimetype:request.getHeader("accept");
-
-        try {
-            
-            parsedQuery = QueryParserUtil.parseOperation(QueryLanguage.SPARQL, query, "<urn:base:>");
-            repCon = internal?this.repositorySD.getConnection():this.repository.getConnection();
-            
-            if(parsedQuery instanceof ParsedGraphQuery){
-                RDFWriterFactory rdfWriterFactory = this.getRDFWriterFactory(accept);
-                
-                response.setContentType(rdfWriterFactory.getRDFFormat().getDefaultMIMEType());
-                if(rdfWriterFactory instanceof GraphQueryMAVWriterFactory){
-                    Map<String,Object> model = new HashMap<>();
-                                       model.put("query", parsedQuery.getSourceString());
-                                       model.put("mimetype", rdfWriterFactory.getRDFFormat().getDefaultMIMEType());
-                                       model.put("format", rdfWriterFactory.getRDFFormat().getName());
-                                       model.put("querytype", QUERY_TYPE.GRAPH);
-                    View view = viewResolver.resolveViewName(CONSTANTS.DEFAULT_SPARQL_ENDPOINT_TEMPLATE, request.getLocale());
-                    
-                    repCon
-                        .prepareGraphQuery(
-                            QueryLanguage.SPARQL, 
-                            parsedQuery.getSourceString()
-                        ).evaluate(
-                            ((GraphQueryMAVWriterFactory)rdfWriterFactory)
-                                .getWriter(
-                                    view, 
-                                    model, 
-                                    request, 
-                                    response
-                                )
-                        );                    
-                } else {
-                    repCon
-                        .prepareGraphQuery(
-                            QueryLanguage.SPARQL, 
-                            parsedQuery.getSourceString()
-                        ).evaluate(
-                            rdfWriterFactory.getWriter(response.getWriter())
-                        );
-                }
-            } else
-            if(parsedQuery instanceof ParsedTupleQuery){
-                TupleQueryResultWriterFactory tupleQueryWriterFactory = this.getTupleQueryResultWriterFactory(accept);
-                response.setContentType(tupleQueryWriterFactory.getTupleQueryResultFormat().getDefaultMIMEType());
-                if((tupleQueryWriterFactory instanceof TupleQueryMAVWriterFactory)){
-                    Map<String,Object> model = new HashMap<>();
-                                       model.put("query", parsedQuery.getSourceString());
-                                       model.put("mimetype", tupleQueryWriterFactory.getTupleQueryResultFormat().getDefaultMIMEType());
-                                       model.put("format", tupleQueryWriterFactory.getTupleQueryResultFormat().getName());
-                                       model.put("querytype", QUERY_TYPE.TUPLE);
-                    View view = viewResolver.resolveViewName(CONSTANTS.DEFAULT_SPARQL_ENDPOINT_TEMPLATE, request.getLocale());
-                    
-                    repCon
-                        .prepareTupleQuery(
-                            QueryLanguage.SPARQL, 
-                            parsedQuery.getSourceString()
-                        ).evaluate(
-                            ((TupleQueryMAVWriterFactory)tupleQueryWriterFactory)
-                                .getWriter(
-                                    view, 
-                                    model, 
-                                    request, 
-                                    response
-                                )
-                        );
-                } else {
-                    repCon
-                        .prepareTupleQuery(
-                            QueryLanguage.SPARQL, 
-                            parsedQuery.getSourceString()
-                        ).evaluate(                        
-                            tupleQueryWriterFactory.getWriter(response.getOutputStream())
-                        );
-                }                
-            } else
-            if(parsedQuery instanceof ParsedBooleanQuery){
-                BooleanQueryResultWriterFactory booleanWriterFactory = this.getBooleanQueryResultWriterFactory(accept);
-                response.setContentType(booleanWriterFactory.getBooleanQueryResultFormat().getDefaultMIMEType());
-                if(booleanWriterFactory instanceof BooleanQueryMAVWriterFactory){
-                    Map<String,Object> model = new HashMap<>();
-                                       model.put("query", parsedQuery.getSourceString());
-                                       model.put("mimetype", booleanWriterFactory.getBooleanQueryResultFormat().getDefaultMIMEType());
-                                       model.put("format", booleanWriterFactory.getBooleanQueryResultFormat().getName());
-                                       model.put("querytype", QUERY_TYPE.BOOLEAN);
-                    View view = viewResolver.resolveViewName(CONSTANTS.DEFAULT_SPARQL_ENDPOINT_TEMPLATE, request.getLocale());
-                    ((BooleanQueryMAVWriterFactory)booleanWriterFactory)
-                        .getWriter(
-                            view, 
-                            model, 
-                            request, 
-                            response
-                        ).write(
-                            repCon
-                                    .prepareBooleanQuery(
-                                            QueryLanguage.SPARQL, 
-                                            parsedQuery.getSourceString()
-                                    ).evaluate()                                
-                        );
-                } else {
-                    booleanWriterFactory
-                            .getWriter(response.getOutputStream())
-                            .write(
-                                    repCon
-                                            .prepareBooleanQuery(
-                                                    QueryLanguage.SPARQL, 
-                                                    parsedQuery.getSourceString()
-                                            ).evaluate()
-                            );
-                }
-            } else
-            if(parsedQuery instanceof ParsedUpdate){
-                repCon.begin();
-                repCon.prepareUpdate(QueryLanguage.SPARQL, query).execute();
-                repCon.commit();
-                response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                if(accept.contains("html")){
-                    this.sparql(""
-                            + "PREFIX http:<http://www.w3.org/2011/http#>"
-                            + "CONSTRUCT { "
-                            + " <"+request.getRequestURL().toString()+"> http:sc ["
-                            + "     http:statusCodeNumber '202'^^xsd:int"
-                            + " ]  "
-                            + "} WHERE { "
-                            + " VALUES ?x { 'x' } "
-                            + "}", request.getParameter("mimetype"), true, request, response);    
-                }
-            }
-        } finally {
-            if(repCon!=null){
-                try {
-                    repCon.close();
-                } catch (RepositoryException ex) {}
-            }        
-        }    
-    }   
     
     /**
      * Get an appropriate TupleQueryResultWriterFactory for the given acceptHeader

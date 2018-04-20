@@ -1,6 +1,11 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
 <sparql> a sd:Service;
-   sd:endpoint <sparql>;
-   sd:supportedLanguage sd:SPARQL11Query;
-   sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>,<http://www.w3.org/ns/formats/Turtle> .
+    sd:endpoint <sparql>;
+    sd:supportedLanguage sd:SPARQL11Query;
+    sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>,<http://www.w3.org/ns/formats/Turtle>, 
+                    <http://www.w3.org/ns/formats/N3>,<http://www.w3.org/ns/formats/N-Triples>,
+                    <http://www.w3.org/ns/formats/N-Quads>,<http://www.w3.org/ns/formats/SPARQL_Results_XML>,
+                    <http://www.w3.org/ns/formats/SPARQL_Results_JSON>,<http://www.w3.org/ns/formats/SPARQL_Results_CSV>,
+                    <http://www.w3.org/ns/formats/SPARQL_Results_TSV>;
+    sd:defaultEntailmentRegime <http://www.w3.org/ns/entailment/RDFS> .

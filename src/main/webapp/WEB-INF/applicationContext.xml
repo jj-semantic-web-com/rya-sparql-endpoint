@@ -33,14 +33,9 @@
         <constructor-arg ref="memStore"/>
     </bean>
 
-    <bean id="memStoreSD" class="org.openrdf.sail.memory.MemoryStore">
-        <property name="persist" value="false"/>
+    <bean id="sdBaseURL" class="java.net.URL">
+        <constructor-arg value="http://localhost:8080/rya/"/>
     </bean>
-    
-    <bean id="repositorySD" class="org.openrdf.repository.sail.SailRepository" init-method="initialize" destroy-method="shutDown">
-        <constructor-arg ref="memStoreSD"/>
-    </bean>
-        
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">        
         <property name="basename" value="classpath:i18n/ui"/>
         <property name="useCodeAsDefaultMessage" value="true"/>
