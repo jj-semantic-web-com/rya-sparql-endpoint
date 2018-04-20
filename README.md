@@ -72,4 +72,8 @@
         * text/boolean => TEXT/PLAIN
         * application/xhtml+xml => SPARQL/XHTML (see below: "Web Browser")
         
+  * Web Browser
+  
+    The proposed SPARQL Endpoint offers the possibility to easily customize the SPARQL Endpoint and SPARQL Results within a browser
+    
 * Content-Negotiation
