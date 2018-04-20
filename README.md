@@ -31,7 +31,12 @@
       curl -H "accept:text/turtle" http://localhost:8080/rya/sparql \
       --data-urlencode "query=CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
       ````
-      
+      * Available mimetypes
+        * text/plain => N-Triples (https://www.w3.org/TR/n-triples/)
+        * text/turtle => Turtle (https://www.w3.org/TR/turtle/)
+        * application/rdf+xml => RDF/XML (https://www.w3.org/TR/rdf-syntax-grammar/)
+        * text/n3 => N3 (https://www.w3.org/TeamSubmission/n3/)
+        * text/x-nquads = NQuads (https://www.w3.org/TR/n-quads/)
     * SELECT
     
       here's an example of issuing a SELECT query
@@ -44,5 +49,13 @@
       ```bash
       curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql \
       --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }" --data-urlencode "mimetype=text/csv"
+      ```
+      
+    * ASK
+    
+      here's an example of issuing an ASK query
+      ```bash
+      curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql \
+      --data-urlencode "query=ASK { ?s ?p ?o }"
       ```
 * Content-Negotiation
