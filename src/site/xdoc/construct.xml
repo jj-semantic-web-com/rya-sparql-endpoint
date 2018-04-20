@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <body>
+    <section name="SparqlFacets-Customers Introduction">
+        <p>
+            On this Maven Site you will find information on
+            <ul>
+                <li>How to create a Customer's distribution of the SparqlFacets Web Application</li>
+                <li>How to customize a distribution of the SparqlFacets Web Application</li>
+                <li>Current Customers distributions</li>
+                <li>Examples of customization</li>
+                <li>Available Maven Targets, Goals and Profiles</li>
+                <li>Release Notes</li>
+            </ul>
+        </p>
+    </section>
+  </body>
+
+</document>

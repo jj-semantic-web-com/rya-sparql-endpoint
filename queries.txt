@@ -1,0 +1,27 @@
+# INSERT DATA
+curl -H "accept:text/turtle" http://localhost:8080/rya/sparql --data-urlencode "query=INSERT DATA { <urn:a> <urn:b> <urn:c> }"
+
+# CONSTRUCT QUERIES
+curl -H "accept:text/turtle" http://localhost:8080/rya/sparql --data-urlencode "query=CONSTRUCT { <urn:a> ?p ?o } WHERE { <urn:a> ?p ?o }"
+curl -H "accept:application/rdf+xml" http://localhost:8080/rya/sparql --data-urlencode "query=CONSTRUCT { <urn:a> ?p ?o } WHERE { <urn:a> ?p ?o }"
+curl -H "accept:text/n3" http://localhost:8080/rya/sparql --data-urlencode "query=CONSTRUCT { <urn:a> ?p ?o } WHERE { <urn:a> ?p ?o }"
+curl -H "accept:text/x-nquads" http://localhost:8080/rya/sparql --data-urlencode "query=CONSTRUCT { <urn:a> ?p ?o } WHERE { <urn:a> ?p ?o }"
+curl -H "accept:application/unknown" http://localhost:8080/rya/sparql --data-urlencode "query=CONSTRUCT { <urn:a> ?p ?o } WHERE { <urn:a> ?p ?o }"
+
+# SELECT QUERIES
+curl -H "accept:application/sparql-results+xml" http://localhost:8080/rya/sparql --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }"
+curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }"
+curl -H "accept:text/tab-separated-values" http://localhost:8080/rya/sparql --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }"
+curl -H "accept:text/csv" http://localhost:8080/rya/sparql --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }"
+curl -H "accept:application/unknown" http://localhost:8080/rya/sparql --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }"
+
+# ASK QUERIES
+curl -H "accept:application/sparql-results+xml" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"
+curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"
+curl -H "accept:text/boolean" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"
+curl -H "accept:application/unknown" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"
+
+# MALFORMED QUERY
+
+curl -H "accept:text/turtle" http://localhost:8080/rya/sparql --data-urlencode "query=XXXXCONSTRUCT WHERE { ?s ?p ?o }"
+

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <body>
+    <section name="RYA - SPARQL - ASK">
+        <p>            
+            <ul>                
+                <li>curl -H "accept:application/sparql-results+xml" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"</li>
+                <li>curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"</li>
+                <li>curl -H "accept:text/boolean" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"</li>
+                <li>curl -H "accept:application/unknown" http://localhost:8080/rya/sparql --data-urlencode "query=ASK { ?s ?p ?o }"</li>
+            </ul>
+        </p>
+    </section>
+  </body>
+
+</document>
+
+
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="RYA ~ SPARQL">
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-stylus-skin</artifactId>
+    <version>1.5</version>
+  </skin>   
+  <bannerLeft>
+    <name>RYA - SPARQL</name>  
+  </bannerLeft>
+  <body>
+    <menu name="RYA SPARQL Endpoint">
+      <item name="CONSTRUCT" href="construct.html"></item>
+      <item name="SELECT" href="select.html" collapse="true"></item>
+      <item name="ASK" href="ask.html" collapse="true"></item>      
+    </menu>
+    <menu ref="reports"/>
+  </body>
+</project>

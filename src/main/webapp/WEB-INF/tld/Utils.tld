@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib version="2.0" xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee web-jsptaglibrary_2_0.xsd">
+    <display-name>Utils Helper Tags</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>utils</short-name>
+    <uri>/WEB-INF/tld/Utils</uri>
+    <function>
+        <name>isInstanceof</name>
+        <function-class>biz.poolparty.rya.tld.Utils</function-class>
+        <function-signature>
+            java.lang.Boolean isInstanceof(java.lang.Object, java.lang.Class)
+        </function-signature>
+    </function>            
+</taglib>
