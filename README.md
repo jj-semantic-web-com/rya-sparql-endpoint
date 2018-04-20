@@ -37,6 +37,8 @@
         * application/rdf+xml => RDF/XML (https://www.w3.org/TR/rdf-syntax-grammar/)
         * text/n3 => N3 (https://www.w3.org/TeamSubmission/n3/)
         * text/x-nquads = NQuads (https://www.w3.org/TR/n-quads/)
+        * application/xhtml+xml => RDFA (https://www.w3.org/TR/rdfa-primer/) (see below: "Web Browser")
+        
     * SELECT
     
       here's an example of issuing a SELECT query
@@ -50,7 +52,13 @@
       curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql \
       --data-urlencode "query=SELECT * WHERE { ?s ?p ?o }" --data-urlencode "mimetype=text/csv"
       ```
-      
+      * Availabel mimetypes
+        * application/sparql-results+xml => SPARQL/XML (https://www.w3.org/TR/rdf-sparql-XMLres/)
+        * application/sparql-results+json => SPARQL/JSON (https://www.w3.org/TR/sparql11-results-json/)
+        * text/tab-separated-values => SPARQL/TSV 
+        * text/csv => SPARQL/CSV
+        * application/xhtml+xml => SPARQL/XHTML (see below: "Web Browser")
+
     * ASK
     
       here's an example of issuing an ASK query
@@ -58,4 +66,10 @@
       curl -H "accept:application/sparql-results+json" http://localhost:8080/rya/sparql \
       --data-urlencode "query=ASK { ?s ?p ?o }"
       ```
+      * Availabel mimetypes
+        * application/sparql-results+xml => SPARQL/XML (https://www.w3.org/TR/rdf-sparql-XMLres/)
+        * application/sparql-results+json => SPARQL/JSON (https://www.w3.org/TR/sparql11-results-json/)
+        * text/boolean => TEXT/PLAIN
+        * application/xhtml+xml => SPARQL/XHTML (see below: "Web Browser")
+        
 * Content-Negotiation
