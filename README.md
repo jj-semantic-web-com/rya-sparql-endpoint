@@ -14,7 +14,7 @@
     * INSERT DATA
 
       note that besides HTTP 202 Accepted header this interaction will also provide an answer using w3c's HTTP vocabulary
-      (https://www.w3.org/TR/HTTP-in-RDF10) in text/turtle
+      (https://www.w3.org/TR/HTTP-in-RDF10) in text/turtle (see below under UPDATE for more infos)
       ```bash
       curl -H "accept:text/turtle" http://localhost:8080/rya/sparql \
       --data-urlencode "query=INSERT DATA { <urn:a> <urn:b> <urn:c> }"
@@ -72,8 +72,70 @@
         * text/boolean => TEXT/PLAIN
         * application/xhtml+xml => SPARQL/XHTML (see below: "Web Browser")
         
+    * UPDATE (INSERT, DELETE, DROP,..)
+
+      Update queries of whatever form will respond with HTTP 202 Accepted in case there's no error (e.g. MalformedQuery)
+      Additionally a response will be given using W3C's HTTP Vocabulary using a mimetype depending on the accept header
+      or the overriding mimetype URL parameter, e.g.
+      ```bash
+      curl -v -H "accept:application/rdf+xml" http://localhost:8080/rya/sparql \
+      --data-urlencode "query=INSERT DATA { <urn:a> <urn:b> <urn:c> }"
+      ```
+      
+      Above curl command will respond with "HTTP/1.1 202 Accepted" and an additional response body like the following
+      ```bash
+      <?xml version="1.0" encoding="UTF-8"?>
+      <rdf:RDF
+	       xmlns:http="http://www.w3.org/2011/http#"
+	       xmlns:cnt="http://www.w3.org/2011/content#"
+	       xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	       xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+      <rdf:Description rdf:nodeID="node1cbif3cuax5">
+	      <http:statusCodeNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#int">202</http:statusCodeNumber>
+      </rdf:Description>
+      <rdf:Description rdf:about="http://localhost:8080/rya/sparql">
+	      <http:sc rdf:nodeID="node1cbif3cuax5"/>
+       <http:body rdf:nodeID="node1cbif3cuax6"/>
+      </rdf:Description>
+      <rdf:Description rdf:nodeID="node1cbif3cuax6">
+	      <cnt:chars>Accepted</cnt:chars>
+      </rdf:Description>
+      </rdf:RDF>      
+      ```
   * Web Browser
   
     The proposed SPARQL Endpoint offers the possibility to easily customize the SPARQL Endpoint and SPARQL Results within a browser. When issuing requests containing application/xhtml+xml or text/html as the accept header (the default in a modern web browser) the SPARQL Endpoint will use a MAVWriter (ModelAndView writer implementation of sesame's infrastructure). The corresponding writer (TupleQueryMAVWriter, GraphQueryMAVWriter and BooleanQueryMAVWriter) will use JSP templates that are easily customizable via styles or re-coding of JSP. By default those writers expose valid XHTML documents, in the case of GraphQueryMAVWriter for graph queries (CONSTRUCT, DESCRIBE) a valid xhtml+rdfa document will be generated.
     
-* Content-Negotiation
+    * Accessing the SPARQL Endpoint
+    
+      By default the endpoint is available at /sparql (a well known SPARQL Endpoint path). Point your browser to
+      http://localhost:8080/rya/sparql to get the default view. Note that when no query is specified the SPARQL Endpoint 
+      will expose a SPARQL Service Description about it's capabilities along the lines from the corresponding W3C 
+      recommendation (https://www.w3.org/TR/sparql11-service-description/). The default description is available as a 
+      turtle document (src/main/resources/sparql-service-description.ttl). When accessing the endpoint without a query
+      from within a browser the RDFA (xhtml+rdfa) format will be used since browsers send application/xhtml+xml or 
+      text/html accept headers by default. To get the SPARQL Endpoint's service description for example as N-Triples
+      call the endpoint using the following URL: http://localhost:8080/rya/sparql?mimetype=text/plain (all available
+      mimetypes from above CONSTRUCT section will work). The same principle applies when calling the endpoint via curl, e.g.
+      ```bash
+      curl -H "accept:application/rdf+xml" http://localhost/rya/sparql
+      ```
+
+    * Error reporting
+    
+    By default SPARQL Query related errors will be reported using the same technique as with UPDATE queries. 
+    A HTTP 400 Bad Request will be used as a response status in case of malformed queries. Additionally a HTTP Response
+    using W3C's HTTP Vocabulary (https://www.w3.org/TR/HTTP-in-RDF10) will be returned in a format depending on the accept
+    header or the overriding mimetype URL parameter, e.g.:
+    ```bash
+    curl -H "accept:text/turtle" http://localhost:8080/rya/sparql --data-urlencode "query=XX"
+    ```
+    will report HTTP 400 Bad Request and a turtle message looking about like the following
+    ```bash
+    @prefix http: <http://www.w3.org/2011/http#> .
+    @prefix cnt: <http://www.w3.org/2011/content#> .
+    _:node1cbif3cuax11 http:statusCodeNumber "400"^^xsd:int .
+    <http://localhost:8080/rya/sparql?null> http:sc _:node1cbif3cuax11 .
+    _:node1cbif3cuax12 cnt:chars "Lexical error at line 1, column 3.  Encountered: <EOF> after : \"XX\"" .
+    <http://localhost:8080/rya/sparql?null> http:body _:node1cbif3cuax12 .
+    ```
