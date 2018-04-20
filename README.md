@@ -74,6 +74,6 @@
         
   * Web Browser
   
-    The proposed SPARQL Endpoint offers the possibility to easily customize the SPARQL Endpoint and SPARQL Results within a browser
+    The proposed SPARQL Endpoint offers the possibility to easily customize the SPARQL Endpoint and SPARQL Results within a browser. When issuing requests containing application/xhtml+xml or text/html as the accept header (the default in a modern web browser) the SPARQL Endpoint will use a MAVWriter (ModelAndView writer implementation of sesame's infrastructure). The corresponding writer (TupleQueryMAVWriter, GraphQueryMAVWriter and BooleanQueryMAVWriter) will use JSP templates that are easily customizable via styles or re-coding of JSP. By default those writers expose valid XHTML documents, in the case of GraphQueryMAVWriter for graph queries (CONSTRUCT, DESCRIBE) a valid xhtml+rdfa document will be generated.
     
 * Content-Negotiation
