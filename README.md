@@ -135,7 +135,7 @@
     @prefix http: <http://www.w3.org/2011/http#> .
     @prefix cnt: <http://www.w3.org/2011/content#> .
     _:node1cbif3cuax11 http:statusCodeNumber "400"^^xsd:int .
-    <http://localhost:8080/rya/sparql?null> http:sc _:node1cbif3cuax11 .
+    <http://localhost:8080/rya/sparql> http:sc _:node1cbif3cuax11 .
     _:node1cbif3cuax12 cnt:chars "Lexical error at line 1, column 3.  Encountered: <EOF> after : \"XX\"" .
-    <http://localhost:8080/rya/sparql?null> http:body _:node1cbif3cuax12 .
+    <http://localhost:8080/rya/sparql> http:body _:node1cbif3cuax12 .
     ```
