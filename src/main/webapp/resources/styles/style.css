@@ -33,3 +33,12 @@ label {
     width: 700px;
     height: 200px;
 }
+
+table.rdfa {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table.rdfa td {
+    word-wrap: break-word
+}

@@ -15,6 +15,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -183,6 +185,8 @@ public class SPARQLController {
                 this.sendRDFHTTPMessage(request, response, repCon, query, accept, messageQuery);                
             }
         } catch (MalformedQueryException ex) {
+            System.out.println("MALFORMED");
+            ex.printStackTrace();
             try {
                 
                 String messageQuery = ""
@@ -193,20 +197,24 @@ public class SPARQLController {
                         + "     http:statusCodeNumber '"+HttpServletResponse.SC_BAD_REQUEST+"'^^xsd:int"
                         + " ];"
                         + " http:body ["
-                        + "     cnt:chars '"+ex.getMessage()+"'"
+                        + "     cnt:chars \""+StringEscapeUtils.escapeJava(ex.getMessage())+"\""
                         + " ] "
                         + "} WHERE { "
-                        + " VALUES ?x { 'x' } "
+                        + " VALUES ?x { \"x\" } "
                         + "}";   
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 this.sendRDFHTTPMessage(request, response, repCon, query, accept, messageQuery);
             } catch (Exception ex1) {
-                Logger.getLogger(SPARQLController.class.getName()).log(Level.SEVERE, null, ex1);
+                System.out.println("=========");
+                System.out.println(StringEscapeUtils.escapeJava(ex.getMessage()));
+                ex1.printStackTrace();
             }
         } catch (RepositoryException ex) {
-            
+            System.out.println("REPOSITORY");
+            ex.printStackTrace();            
         } catch (Exception ex) {
-            
+            System.out.println("EXCEPTION");
+            ex.printStackTrace();            
         } finally {
             if(repCon!=null){
                 try {
@@ -456,6 +464,8 @@ public class SPARQLController {
             String accept, 
             String messageQuery
     ) throws Exception {
+        System.out.println("MESSAGE: ");
+        System.out.println(messageQuery);
         RDFWriterFactory rdfWriterFactory = this.getRDFWriterFactory(accept);        
         View view = this.getView(request);
         Map<String,Object> model = new HashMap<>();

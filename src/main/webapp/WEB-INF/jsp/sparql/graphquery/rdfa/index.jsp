@@ -8,7 +8,7 @@
 
 <fieldset>
     <legend>Results</legend>
-    <table border="1">
+    <table border="1" class="rdfa">
         <tr>
             <td><spring:message code="sparql.endpoint.subject"/></td>
             <td><spring:message code="sparql.endpoint.predicate"/></td>
@@ -29,7 +29,7 @@
                             property="${statement.predicate.stringValue()}"
                             datatype="${statement.object.getDatatype()}"
                             content="${fn:escapeXml(statement.object.stringValue())}"
-                            >${statement.object.stringValue()}                                    
+                            >${fn:escapeXml(statement.object.stringValue())}
                         </td>
                         <td>
                             ${statement.object.getDatatype()}
